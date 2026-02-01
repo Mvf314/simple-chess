@@ -1,0 +1,5 @@
+Now game does not detect check
+
+en passant capture
+
+
