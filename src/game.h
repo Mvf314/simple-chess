@@ -26,6 +26,8 @@ public:
 
 	void setEvaluator(std::function<float (const std::vector<Piece>&)> fun);
 
+	static bool isCheck(std::vector<Piece>& pcs, Color c);
+
 private:
 	// Because we will remove elements of this vector, use unique_ptr
 	std::vector<Piece> pieces;
@@ -42,8 +44,6 @@ private:
 
 	// return true to break out of loop.
 	bool checkBoard();
-
-	bool isCheck(std::vector<Piece>& pcs, Color c);
 
 	std::pair<Piece, Position> doTurn(Color c);
 

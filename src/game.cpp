@@ -112,6 +112,8 @@ bool Game::checkBoard() {
 		std::cout << "White in check!\n";
 		state = State::WHITE_CHECK;
 	}
+
+	return false;
 }
 
 
@@ -302,7 +304,7 @@ bool Game::isCheck(std::vector<Piece>& pcs, Color c) {
 		}
 	}
 
-	// To avoid circular function calling, do without p.validMoves(). So just analyze the board directly and look at character positions.
+	// TODO To avoid circular function calling, do without p.validMoves(). So just analyze the board directly and look at character positions.
 	for (Piece p : pcs) {
 		if (p.c != c) {
 			std::vector<Position> validMoves = p.validMoves(pcs);
