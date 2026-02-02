@@ -1,8 +1,11 @@
 #include "game.h"
 
-#include "rook.h"
-#include "king.h"
-#include "bishop.h"
+#include "piece/king.h"
+#include "piece/queen.h"
+#include "piece/rook.h"
+#include "piece/bishop.h"
+#include "piece/knight.h"
+#include "piece/pawn.h"
 
 #include <sstream>
 #include <iostream>
@@ -12,17 +15,25 @@ Game::Game() {
 	
 	pieces = Board();
 
-	pieces.push_back(std::make_shared<Rook>(Color::WHITE, Position('D', '4')));
+	for (int i = 0; i < 8; i++) {
+		pieces.push_back(std::make_shared<Pawn>(Color::WHITE, Position(1 + i, 2)));
+		pieces.push_back(std::make_shared<Pawn>(Color::BLACK, Position(1 + i, 7)));
+	}
 
-	pieces.push_back(std::make_shared<Rook>(Color::BLACK, Position('B', '4')));
+	for (int i = 0; i < 2; i++) {
+		pieces.push_back(std::make_shared<Rook>(Color::WHITE, Position(1 + (7 * i), 1)));
+		pieces.push_back(std::make_shared<Rook>(Color::BLACK, Position(1 + (7 * i), 8)));
+		pieces.push_back(std::make_shared<Knight>(Color::WHITE, Position(2 + (5 * i), 1)));
+		pieces.push_back(std::make_shared<Knight>(Color::BLACK, Position(2 + (5 * i), 8)));
+		pieces.push_back(std::make_shared<Bishop>(Color::WHITE, Position(3 + (3 * i), 1)));
+		pieces.push_back(std::make_shared<Bishop>(Color::BLACK, Position(3 + (3 * i), 8)));
+	}
 
-	pieces.push_back(std::make_shared<King>(Color::WHITE, Position('F', '4')));
-	pieces.push_back(std::make_shared<King>(Color::BLACK, Position('A', '8')));
+	pieces.push_back(std::make_shared<King>(Color::WHITE, Position(5, 1)));
+	pieces.push_back(std::make_shared<King>(Color::BLACK, Position(5, 8)));
+	pieces.push_back(std::make_shared<Queen>(Color::WHITE, Position(4, 1)));
+	pieces.push_back(std::make_shared<Queen>(Color::BLACK, Position(4, 8)));
 
-
-	pieces.push_back(std::make_shared<Bishop>(Color::WHITE, Position('D', '6')));
-	
-	
 	printBoard();
 
 	for (auto piece : pieces) {

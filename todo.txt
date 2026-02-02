@@ -1,4 +1,4 @@
-Now game does not detect check
+Implement Unicode symbols. The thing is, they do not fit into a char. So figure out what data type to use.
 
 en passant capture
 

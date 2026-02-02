@@ -3,7 +3,7 @@
 #include <random>
 #include <memory>
 
-#include "piece.h"
+#include "piece/piece.h"
 
 typedef std::vector<std::shared_ptr<Piece>> Board;
 typedef std::array<std::array<char, 8>, 8> BoardText;

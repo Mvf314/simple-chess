@@ -5,7 +5,7 @@
 #include <array>
 #include <memory>
 
-#include "position.h"
+#include "../position.h"
 
 enum class Color {
 	WHITE,
@@ -28,11 +28,11 @@ public:
 	virtual int getScore() = 0;
 	// TODO implementations have new. Maybe add virtual destructor?
 	virtual Piece* clone() = 0;
+	virtual std::vector<std::shared_ptr<Piece>> simulateMove(const std::vector<std::shared_ptr<Piece>>& pieces, std::shared_ptr<Piece>& piece, Position move);
+	static bool inCheck(const std::vector<std::shared_ptr<Piece>>& pieces, Color col);
 private:
 	virtual std::vector<Position::MoveResult> moveset() = 0;
-	virtual std::vector<std::shared_ptr<Piece>> simulateMove(const std::vector<std::shared_ptr<Piece>>& pieces, std::shared_ptr<Piece>& piece, Position move);
 
-	static bool inCheck(const std::vector<std::shared_ptr<Piece>>& pieces, Color col);
 
 };
 
