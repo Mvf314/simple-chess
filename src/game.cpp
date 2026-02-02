@@ -34,22 +34,33 @@ Game::Game() {
 	pieces.push_back(std::make_shared<Queen>(Color::WHITE, Position(4, 1)));
 	pieces.push_back(std::make_shared<Queen>(Color::BLACK, Position(4, 8)));
 
-	printBoard();
-
-	for (auto piece : pieces) {
-		Piece* p = piece.get();
-		std::cout << "Found piece " << p->getChar() << '\n';
-		auto moves = p->validMoves(pieces);
-
-		printBoard(moves);
-
-	}
-
-
-	state = State::GAME;
-
+	state = State::WHITE_TURN;
 	gen = std::mt19937(rd());
 }
+
+
+void Game::run() {
+	
+
+	while (state != State::WHITE_WIN && state != State::BLACK_WIN && state != State::DRAW) {
+		// WHITE TURN
+
+		Move whiteMove = whiteEvaluator(pieces);
+
+		// execute move
+
+		updateState();
+		if (state == State::WHITE_WIN || state == State::BLACK_WIN || state == State::DRAW) {
+			break;
+		}
+
+		Move blackMove = blackEvaluator(pieces);
+		
+		updateState();
+	}
+
+}
+
 
 void Game::printBoard(const std::vector<Position>& moves) {
 
@@ -101,18 +112,34 @@ BoardText Game::getBoard() {
 	return b;
 }
 
+
+void Game::updateState() {
+
+	// Check mate here.
+
+	if (Piece::inCheck(pieces, Color::WHITE)) {
+		state = State::WHITE_CHECK;
+	}
+	if (Piece::inCheck(pieces, Color::BLACK)) {
+		state = State::BLACK_CHECK;
+	}
+}
+
+
+// TODO implement evaluators
 Move Game::standardEvaluator(const Board& pcs) {
-	// TODO
-	/*
-	for (auto p : pcs) {
-		switch (p.c) {
-			case Color::WHITE:
-				scoreWhite += p.getScore();
-				break;
-			case Color::BLACK:
-				scoreBlack += p.getScore();
-				break;
+	for (auto piece_ptr : pcs) {
+		Piece* piece = piece_ptr.get();
+		std::vector<Position> moves = piece->validMoves(pcs);
+		if (moves.size() > 0) {
+			// bad
+			return std::make_pair(std::shared_ptr<Piece>(piece->clone()), moves[0]);
 		}
-	}*/
+	}
 	return std::make_pair(pcs[0], Position(1,1));
 }
+
+Move Game::userInput(const Board& pcs) {
+	return standardEvaluator(pcs);
+}
+
