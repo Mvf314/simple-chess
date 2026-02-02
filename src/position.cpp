@@ -63,7 +63,7 @@ Position Position::move(const int up, const int right, const bool dir) {
 	}
 }
 
-std::pair<bool, Position> Position::moveTruncate(const int up, const int right, const bool dir) noexcept {
+Position::MoveResult Position::moveTruncate(const int up, const int right, const bool dir) noexcept {
 	bool truncated = false;
 	int newFile = dir ? file + right : file - right;
 	int newRank = dir ? rank + up : rank - up;

@@ -2,4 +2,5 @@ Now game does not detect check
 
 en passant capture
 
-
+Ensure shared_ptr does not get copied needlessly. Related: for (const auto&
+..).

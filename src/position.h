@@ -6,6 +6,9 @@
 
 class Position {
 public:
+
+	typedef std::pair<bool, Position> MoveResult;
+
 	// These are in the range [1,8].
 	int file, rank;
 	
@@ -16,7 +19,7 @@ public:
 
 	Position move(const int up, const int right, const bool dir);
 	// Returns true if position was truncated.
-	std::pair<bool, Position> moveTruncate(const int up, const int right, const bool dir) noexcept;
+	Position::MoveResult moveTruncate(const int up, const int right, const bool dir) noexcept;
 
 	bool operator==(const Position& other);
 };

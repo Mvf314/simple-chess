@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <array>
+#include <memory>
 
 #include "position.h"
 
@@ -11,37 +12,28 @@ enum class Color {
 	BLACK,
 };
 
-enum class Type {
-	PAWN,
-	ROOK,
-	KNIGHT,
-	BISHOP,
-	KING,
-	QUEEN,
-};
-
 
 class Piece {
 public:
-	Piece(Color color, Type type, Position position) : c(color), t(type), pos(position) {};
+	Piece(Color col, Position position) : c(col), pos(position) {};
 
 	Color c;
-	Type t;
 	Position pos;
 
-	char getChar();
+	virtual char getChar() = 0;
 
-	std::vector<Position> validMoves(const std::vector<Piece>& pieces);
+	virtual std::vector<Position> validMoves(const std::vector<std::shared_ptr<Piece>>& pieces);
+	virtual std::vector<Position> lineOfSight(const std::vector<std::shared_ptr<Piece>>& pieces);
 
-	int getScore();
-
-	bool operator==(const Piece& other);
-
+	virtual int getScore() = 0;
+	// TODO implementations have new. Maybe add virtual destructor?
+	virtual Piece* clone() = 0;
 private:
-	// Finds moves based on the moveset of our piece
-	std::vector<Position> possibleMoves(const std::vector<Piece>& pieces);
-	// Checks if a move is not blocked, either by a piece or line of sight.
-	bool isValidMove(const std::vector<Piece>& pieces, const Position move);
+	virtual std::vector<Position::MoveResult> moveset() = 0;
+	virtual std::vector<std::shared_ptr<Piece>> simulateMove(const std::vector<std::shared_ptr<Piece>>& pieces, std::shared_ptr<Piece>& piece, Position move);
+
+	static bool inCheck(const std::vector<std::shared_ptr<Piece>>& pieces, Color col);
+
 };
 
 #endif

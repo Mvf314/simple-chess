@@ -1,8 +1,13 @@
 #include <vector>
 #include <functional>
 #include <random>
+#include <memory>
 
 #include "piece.h"
+
+typedef std::vector<std::shared_ptr<Piece>> Board;
+typedef std::array<std::array<char, 8>, 8> BoardText;
+typedef std::pair<std::shared_ptr<Piece>, Position> Move;
 
 enum class State {
 	GAME,
@@ -18,38 +23,23 @@ public:
 
 	void run();
 
-	// Check board state
-	bool isValid();
-
 	void printBoard(const std::vector<Position>& moves);
 	void printBoard();
 
-	void setEvaluator(std::function<float (const std::vector<Piece>&)> fun);
+	void setEvaluators(std::function<Move (const Board&)> white, std::function<Move (const Board&)> black);
 
 	static bool isCheck(std::vector<Piece>& pcs, Color c);
 
 private:
-	// Because we will remove elements of this vector, use unique_ptr
-	std::vector<Piece> pieces;
-	std::vector<Piece> killed;
+	Board pieces;
+	Board killed;
 
-	std::array<std::array<char, 8>, 8> getBoard();
+	BoardText getBoard();
 
-	// Get piece with allowed moves
-	std::pair<Piece, std::vector<Position>> getPiece();
-	Position getMove(std::vector<Position>& allowedMoves);
+	std::function<Move (const Board&)> whiteEvaluator;
+	std::function<Move (const Board&)> blackEvaluator;
 
-	void executeMove(Piece p, Position move);
-	std::vector<Piece> simulateMove(Piece p, Position move);
-
-	// return true to break out of loop.
-	bool checkBoard();
-
-	std::pair<Piece, Position> doTurn(Color c);
-
-	std::function<float (const std::vector<Piece>&)> evaluator;
-
-	static float standardEvaluator(const std::vector<Piece>& pcs);
+	static Move standardEvaluator(const Board& pcs);
 	State state;
 
 
