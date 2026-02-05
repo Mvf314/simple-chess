@@ -1,3 +1,6 @@
+#ifndef __CHESS_GAME_H__
+#define __CHESS_GAME_H__
+
 #include <vector>		// vector
 #include <functional>	// function
 #include <random>		// random_device, mt19937
@@ -28,7 +31,12 @@ public:
 	void printBoard(const std::vector<Position>& moves);
 	void printBoard();
 
+	static void printBoard(const Board& pcs, const std::vector<Position>& moves);
+	static void printBoard(const Board& pcs);
+
 	void updateState();
+
+	void executeMove(Move move);
 
 	void setEvaluators(std::function<Move (const Board&)> white, std::function<Move (const Board&)> black);
 
@@ -37,11 +45,14 @@ public:
 	static Move standardEvaluator(const Board& pcs);
 	static Move userInput(const Board& pcs);
 
+	static void printMove(Move move);
+
 private:
 	Board pieces;
 	Board killed;
 
 	BoardText getBoard();
+	static BoardText getBoard(const Board& pcs);
 
 	std::function<Move (const Board&)> whiteEvaluator;
 	std::function<Move (const Board&)> blackEvaluator;
@@ -54,3 +65,5 @@ private:
 	std::random_device rd;
 	std::mt19937 gen;
 };
+
+#endif

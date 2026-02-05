@@ -26,12 +26,12 @@ std::vector<Position> Pawn::validMoves(const std::vector<std::shared_ptr<Piece>>
 		bool isCapture = false;
 		for (const auto& piece_ptr : pieces) {
 			if (piece_ptr.get()->pos == move) {
+				isCapture = true;
 				// If move is a capture
 				// NB: We don't need to check chat piece_ptr points toward an enemy. This is ensured in lineOfSight.
 				if (move.file != pos.file) {
 					// We can only capture diagonally
 					validMoves.push_back(move);
-					isCapture = true;
 				}
 			}
 		}
