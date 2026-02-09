@@ -4,7 +4,7 @@ int main() {
 
 	Game g = Game();
 
-	g.setEvaluators(Game::userInput, Game::standardEvaluator);
+	g.setEvaluators(Game::userInput, Game::standardEvaluatorBlack);
 
 	g.run();
 

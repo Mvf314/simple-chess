@@ -46,7 +46,7 @@ void Game::run() {
 	while (state != State::WHITE_WIN && state != State::BLACK_WIN && state != State::DRAW) {
 		// WHITE TURN
 
-		Move whiteMove = whiteEvaluator(pieces);
+		Move whiteMove = whiteEvaluator(pieces, killed);
 
 		printMove(whiteMove);
 		executeMove(whiteMove);
@@ -56,7 +56,7 @@ void Game::run() {
 			break;
 		}
 
-		Move blackMove = blackEvaluator(pieces);
+		Move blackMove = blackEvaluator(pieces, killed);
 		printMove(blackMove);
 		executeMove(blackMove);
 		
@@ -66,13 +66,27 @@ void Game::run() {
 }
 
 
-void Game::printBoard(const Board& pcs, const std::vector<Position>& moves) {
+void Game::printBoard(const Board& pcs, const Board& killed, const std::vector<Position>& moves) {
 
 	auto board = getBoard(pcs);
 
 	for (auto move : moves) {
 		board[move.rank - 1][move.file - 1] = '.';
 	}
+
+	// Track killed pieces per color
+	Board killedBlack = Board();
+	Board killedWhite = Board();
+
+	for (auto piece_ptr : killed) {
+		Piece* piece = piece_ptr.get();
+		if (piece->c == Color::WHITE) {
+			killedWhite.push_back(std::shared_ptr<Piece>(piece->clone()));
+		} else if (piece->c == Color::BLACK) {
+			killedBlack.push_back(std::shared_ptr<Piece>(piece->clone()));
+		}
+	}
+
 
 	std::stringstream ss = std::stringstream();
 	ss << "  A B C D E F G H\n";
@@ -84,8 +98,33 @@ void Game::printBoard(const Board& pcs, const std::vector<Position>& moves) {
 			ss << square << "\u2502";
 		}
 		ss.seekp(-1, ss.cur); // Remove one character
-		ss << "\u2551\n";
-		ss << " \u255F\u2500\u253C\u2500\u253C\u2500\u253C\u2500\u253C\u2500\u253C\u2500\u253C\u2500\u253C\u2500\u2562\n";
+		ss << "\u2551";
+		
+		if (killedBlack.size() > 0) {
+			if (rank == 3) {
+				ss << "\tPieces captured:";
+			}
+			if (rank == 2) {
+				ss << "\t";
+				for (auto piece_ptr : killedBlack) {
+					Piece* piece = piece_ptr.get();
+					ss << piece->getChar();
+				}
+			}
+		}
+		if (killedWhite.size() > 0) {
+			if (rank == 6) {
+				ss << "\tPieces captured:";
+			}
+			if (rank == 5) {
+				ss << "\t";
+				for (auto piece_ptr : killedWhite) {
+					Piece* piece = piece_ptr.get();
+					ss << piece->getChar();
+				}
+			}
+		}
+		ss << "\n \u255F\u2500\u253C\u2500\u253C\u2500\u253C\u2500\u253C\u2500\u253C\u2500\u253C\u2500\u253C\u2500\u2562\n";
 	}
 	ss.seekp(-51, ss.cur); // Erase last line, kinda cursed
 	ss << "\u255A\u2550\u2567\u2550\u2567\u2550\u2567\u2550\u2567\u2550\u2567\u2550\u2567\u2550\u2567\u2550\u255D\n";
@@ -94,13 +133,13 @@ void Game::printBoard(const Board& pcs, const std::vector<Position>& moves) {
 	std::cout << ss.str();
 }
 
-void Game::printBoard(const Board& pcs) {
+void Game::printBoard(const Board& pcs, const Board& killed) {
 	std::vector<Position> empty = std::vector<Position>();
-	printBoard(pcs, empty);
+	printBoard(pcs, killed, empty);
 }
 
 void Game::printBoard(const std::vector<Position>& moves) {
-	printBoard(pieces, moves);
+	printBoard(pieces, killed, moves);
 }
 
 void Game::printBoard() {
@@ -109,7 +148,7 @@ void Game::printBoard() {
 	printBoard(empty);
 }
 
-void Game::setEvaluators(std::function<Move (const Board&)> white, std::function<Move (const Board&)> black) {
+void Game::setEvaluators(std::function<Move (const Board&, const Board&)> white, std::function<Move (const Board&, const Board&)> black) {
 	whiteEvaluator = white;
 	blackEvaluator = black;
 }
@@ -170,20 +209,27 @@ void Game::executeMove(Move move) {
 
 
 // TODO implement evaluators
-Move Game::standardEvaluator(const Board& pcs) {
+Move Game::standardEvaluator(const Board& pcs, const Board& killed, Color c) {
+	(void) killed; //Unused
 	for (auto piece_ptr : pcs) {
 		Piece* piece = piece_ptr.get();
+		if (piece->c == c) {
 		std::vector<Position> moves = piece->validMoves(pcs);
-		if (moves.size() > 0) {
-			// bad
-			return std::make_pair(std::shared_ptr<Piece>(piece->clone()), moves[0]);
+			if (moves.size() > 0) {
+				// bad
+				return std::make_pair(std::shared_ptr<Piece>(piece->clone()), moves[0]);
+			}
 		}
 	}
 	return std::make_pair(pcs[0], Position(1,1));
 }
 
+Move Game::standardEvaluatorBlack(const Board& pcs, const Board& killed) {
+	return standardEvaluator(pcs, killed, Color::BLACK);
+}
+
 // User input (for white)
-Move Game::userInput(const Board& pcs) {
+Move Game::userInput(const Board& pcs, const Board& killed) {
 	bool foundPiece = false;
 	bool foundMove = false;
 
@@ -192,7 +238,7 @@ Move Game::userInput(const Board& pcs) {
 
 	while (!foundPiece) {
 
-		printBoard(pcs);
+		printBoard(pcs, killed);
 
 		int piece_id;
 
@@ -230,7 +276,7 @@ Move Game::userInput(const Board& pcs) {
 
 		while (foundPiece && !foundMove) {
 
-			printBoard(pcs, moves);
+			printBoard(pcs, killed, moves);
 
 			std::cout << "move piece at " << pcs[piece_id].get()->pos.toString() << " to: ";
 			std::cin >> input;

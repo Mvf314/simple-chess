@@ -31,19 +31,20 @@ public:
 	void printBoard(const std::vector<Position>& moves);
 	void printBoard();
 
-	static void printBoard(const Board& pcs, const std::vector<Position>& moves);
-	static void printBoard(const Board& pcs);
+	static void printBoard(const Board& pcs, const Board& killed, const std::vector<Position>& moves);
+	static void printBoard(const Board& pcs, const Board& killed);
 
 	void updateState();
 
 	void executeMove(Move move);
 
-	void setEvaluators(std::function<Move (const Board&)> white, std::function<Move (const Board&)> black);
+	void setEvaluators(std::function<Move (const Board&, const Board&)> white, std::function<Move (const Board&, const Board&)> black);
 
 	static bool isCheck(std::vector<Piece>& pcs, Color c);
 	
-	static Move standardEvaluator(const Board& pcs);
-	static Move userInput(const Board& pcs);
+	static Move standardEvaluator(const Board& pcs, const Board& killed, Color c);
+	static Move standardEvaluatorBlack(const Board& pcs, const Board& killed);
+	static Move userInput(const Board& pcs, const Board& killed);
 
 	static void printMove(Move move);
 
@@ -54,8 +55,8 @@ private:
 	BoardText getBoard();
 	static BoardText getBoard(const Board& pcs);
 
-	std::function<Move (const Board&)> whiteEvaluator;
-	std::function<Move (const Board&)> blackEvaluator;
+	std::function<Move (const Board&, const Board&)> whiteEvaluator;
+	std::function<Move (const Board&, const Board&)> blackEvaluator;
 
 	
 	State state;
