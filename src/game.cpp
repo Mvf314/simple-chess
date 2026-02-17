@@ -34,7 +34,6 @@ Game::Game() {
 	pieces.push_back(std::make_shared<Queen>(Color::WHITE, Position(4, 1)));
 	pieces.push_back(std::make_shared<Queen>(Color::BLACK, Position(4, 8)));
 
-
 	killed = Board();
 
 	state = State::WHITE_TURN;
@@ -61,6 +60,14 @@ void Game::run() {
 		executeMove(blackMove);
 		
 		updateState();
+	}
+
+	printBoard();
+
+	if (state == State::WHITE_WIN) {
+		std::cout << "White wins!\n";
+	} else if (state == State::BLACK_WIN) {
+		std::cout << "Black wins!\n";
 	}
 
 }
@@ -170,13 +177,28 @@ BoardText Game::getBoard() {
 
 void Game::updateState() {
 
-	// Check mate here.
-
 	if (Piece::inCheck(pieces, Color::WHITE)) {
 		state = State::WHITE_CHECK;
+		// Check mate
+		for (auto piece_ptr : pieces) {
+			Piece* piece = piece_ptr.get();
+			if (piece->c == Color::WHITE) {
+				// TODO
+			}
+		}
 	}
 	if (Piece::inCheck(pieces, Color::BLACK)) {
 		state = State::BLACK_CHECK;
+		int movesLeft = 0;
+		for (auto piece_ptr : pieces) {
+			Piece* piece = piece_ptr.get();
+			if (piece->c == Color::BLACK) {
+				movesLeft += piece->validMoves(pieces).size();
+			}
+		}
+		if (movesLeft == 0) {
+			state = State::WHITE_WIN;
+		}
 	}
 }
 
