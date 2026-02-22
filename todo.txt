@@ -4,3 +4,5 @@ en passant capture
 
 Ensure shared_ptr does not get copied needlessly. Related: for (const auto&
 ..).
+
+Somehow, the opponent put himself in chess. So somewehere the checking goes wrong.

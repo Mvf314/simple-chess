@@ -50,6 +50,7 @@ void Game::run() {
 		printMove(whiteMove);
 		executeMove(whiteMove);
 
+
 		updateState();
 		if (state == State::WHITE_WIN || state == State::BLACK_WIN || state == State::DRAW) {
 			break;
@@ -233,17 +234,88 @@ void Game::executeMove(Move move) {
 // TODO implement evaluators
 Move Game::standardEvaluator(const Board& pcs, const Board& killed, Color c) {
 	(void) killed; //Unused
+	// Keep track of possible moves.
+	std::multimap<float, Move> futureScores = std::multimap<float, Move>(); 
 	for (auto piece_ptr : pcs) {
 		Piece* piece = piece_ptr.get();
 		if (piece->c == c) {
 		std::vector<Position> moves = piece->validMoves(pcs);
-			if (moves.size() > 0) {
-				// bad
-				return std::make_pair(std::shared_ptr<Piece>(piece->clone()), moves[0]);
+			for (Position move : moves) {
+				// Iterate through every possible move.
+				
+
+				// The future of this move is:
+				auto nextBoard = piece->simulateMove(pcs, piece_ptr, move);
+
+				int score = getScore(nextBoard, c);
+			
+				// Score for this move will be the minimum of the possible futures
+				// If the opponent has even one good response, we dont want the move.
+				// We want to minimize the possible responses.
+
+				// Look one level deeper
+				// Ensure we don't select a non-existent move.
+				bool foundMove = false;
+				int minScore = score;
+				for (auto piece_ptr2 : nextBoard) {
+					Piece* piece2 = piece_ptr2.get();
+
+					// Look at piece of enemy
+					if (piece2->c != c) {
+						std::vector<Position> moves2 = piece2->validMoves(nextBoard);
+
+						for (Position move2 : moves2) {
+							auto nextNextBoard = piece2->simulateMove(nextBoard, piece_ptr2, move2);
+
+							// Calculate score of this board.
+							int futureScore = getScore(nextNextBoard, c);
+							
+							if (!foundMove) {
+								minScore = futureScore;
+								foundMove = true;
+							} else {
+								if (futureScore < minScore) {
+									minScore = futureScore;
+								}
+							}
+						}
+					}
+				}
+
+				if (foundMove) {
+					// Another copy?
+					futureScores.emplace(minScore, std::make_pair(std::shared_ptr<Piece>(piece->clone()), move));
+				}
 			}
 		}
 	}
-	return std::make_pair(pcs[0], Position(1,1));
+
+	// For debug purposes:
+	for (auto kv : futureScores) {
+		std::cout << "Move " << kv.second.first.get()->getChar() << " to " << kv.second.second.toString() << " for score " << kv.first << "\n";
+	}
+
+	// Pick the move. Can be done more elegantly.
+	if (futureScores.size() > 0) {
+		// Should always happen.
+		float bestScore = futureScores.begin()->first;
+		size_t count = futureScores.count(bestScore);
+		int idx = futureScores.size() - 1; // Select the highest key.
+		if (count > 1) {
+			// If there is more than 1 possible move, pick a random best move
+			std::uniform_int_distribution<> dist(0, count - 1);
+			//idx = 0; // TODO not random. Fix RNG in static func.
+		}
+		int counter = 0;
+		for (auto kv : futureScores) {
+			if (counter == idx) {
+				return kv.second;
+			}
+			counter++;
+		}
+	}
+
+	throw std::runtime_error("No possible move!");
 }
 
 Move Game::standardEvaluatorBlack(const Board& pcs, const Board& killed) {
@@ -339,4 +411,17 @@ Move Game::userInput(const Board& pcs, const Board& killed) {
 
 void Game::printMove(Move move) {
 	std::cout << "Moved " << move.first.get()->getChar() << " to " << move.second.toString() << ".\n";
+}
+
+int Game::getScore(const Board& pcs, Color c) {
+	int score = 0;
+	for (auto piece_ptr : pcs) {
+		Piece* piece = piece_ptr.get();
+		if (piece->c == c) {
+			score += piece->getScore();
+		} else {
+			score -= piece->getScore();
+		}
+	}
+	return score;
 }

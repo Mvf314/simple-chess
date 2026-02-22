@@ -47,6 +47,7 @@ public:
 	static Move userInput(const Board& pcs, const Board& killed);
 
 	static void printMove(Move move);
+	static int getScore(const Board& pcs, Color c);
 
 private:
 	Board pieces;
