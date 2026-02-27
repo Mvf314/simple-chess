@@ -9,8 +9,8 @@ public:
 
 	char getChar() override;
 
-	// Knight has no line of sight check.
-	std::vector<Position> lineOfSight(const std::vector<std::shared_ptr<Piece>>& pieces);
+	// Knight has no(nstandard) line of sight check.
+	std::vector<Position> lineOfSight(const std::vector<std::shared_ptr<Piece>>& pieces) override;
 
 	int getScore() override;
 	Knight* clone() override;

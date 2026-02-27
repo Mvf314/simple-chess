@@ -29,9 +29,8 @@ std::vector<Position> Knight::lineOfSight(const std::vector<std::shared_ptr<Piec
 		}
 	}
 
-	bool includeMove = true;
-
 	for (Position move : moves) {
+		bool includeMove = true;
 		for (auto piece_ptr : pieces) {
 			Piece* piece = piece_ptr.get();
 			if (piece->pos == move && piece->c == c) {
@@ -42,6 +41,7 @@ std::vector<Position> Knight::lineOfSight(const std::vector<std::shared_ptr<Piec
 			allowedMoves.push_back(move);
 		}
 	}
+
 	return allowedMoves;
 }
 
