@@ -37,15 +37,17 @@ Game::Game() {
 	killed = Board();
 
 	state = State::WHITE_TURN;
-	gen = std::mt19937(rd());
 }
 
 
 void Game::run() {
+
+	Random random = Random();
+
 	while (state != State::WHITE_WIN && state != State::BLACK_WIN && state != State::DRAW) {
 		// WHITE TURN
 
-		Move whiteMove = whiteEvaluator(pieces, killed);
+		Move whiteMove = whiteEvaluator(pieces, killed, random);
 
 		printMove(whiteMove);
 		executeMove(whiteMove);
@@ -56,7 +58,7 @@ void Game::run() {
 			break;
 		}
 
-		Move blackMove = blackEvaluator(pieces, killed);
+		Move blackMove = blackEvaluator(pieces, killed, random);
 		printMove(blackMove);
 		executeMove(blackMove);
 		
@@ -156,7 +158,7 @@ void Game::printBoard() {
 	printBoard(empty);
 }
 
-void Game::setEvaluators(std::function<Move (const Board&, const Board&)> white, std::function<Move (const Board&, const Board&)> black) {
+void Game::setEvaluators(std::function<Move (const Board&, const Board&, Random&)> white, std::function<Move (const Board&, const Board&, Random&)> black) {
 	whiteEvaluator = white;
 	blackEvaluator = black;
 }
@@ -232,7 +234,7 @@ void Game::executeMove(Move move) {
 
 
 // TODO implement evaluators
-Move Game::standardEvaluator(const Board& pcs, const Board& killed, Color c) {
+Move Game::standardEvaluator(const Board& pcs, const Board& killed, Random& rand, Color c) {
 	(void) killed; //Unused
 	// Keep track of possible moves.
 	std::multimap<float, Move> futureScores = std::multimap<float, Move>(); 
@@ -290,21 +292,16 @@ Move Game::standardEvaluator(const Board& pcs, const Board& killed, Color c) {
 		}
 	}
 
-	// For debug purposes:
-	for (auto kv : futureScores) {
-		std::cout << "Move " << kv.second.first.get()->getChar() << " to " << kv.second.second.toString() << " for score " << kv.first << "\n";
-	}
-
 	// Pick the move. Can be done more elegantly.
 	if (futureScores.size() > 0) {
+
 		// Should always happen.
 		float bestScore = futureScores.begin()->first;
 		size_t count = futureScores.count(bestScore);
 		int idx = futureScores.size() - 1; // Select the highest key.
 		if (count > 1) {
 			// If there is more than 1 possible move, pick a random best move
-			std::uniform_int_distribution<> dist(0, count - 1);
-			//idx = 0; // TODO not random. Fix RNG in static func.
+			idx = rand.getRandomInt(0, count - 1);
 		}
 		int counter = 0;
 		for (auto kv : futureScores) {
@@ -318,12 +315,13 @@ Move Game::standardEvaluator(const Board& pcs, const Board& killed, Color c) {
 	throw std::runtime_error("No possible move!");
 }
 
-Move Game::standardEvaluatorBlack(const Board& pcs, const Board& killed) {
-	return standardEvaluator(pcs, killed, Color::BLACK);
+Move Game::standardEvaluatorBlack(const Board& pcs, const Board& killed, Random& rand) {
+	return standardEvaluator(pcs, killed, rand, Color::BLACK);
 }
 
 // User input (for white)
-Move Game::userInput(const Board& pcs, const Board& killed) {
+Move Game::userInput(const Board& pcs, const Board& killed, Random& rand) {
+	(void) rand; // unused
 	bool foundPiece = false;
 	bool foundMove = false;
 

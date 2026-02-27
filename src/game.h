@@ -3,10 +3,10 @@
 
 #include <vector>		// vector
 #include <functional>	// function
-#include <random>		// random_device, mt19937
 #include <memory>		// shared_ptr
 
 #include "piece/piece.h"
+#include "random.h"
 
 typedef std::vector<std::shared_ptr<Piece>> Board;
 typedef std::array<std::array<char, 8>, 8> BoardText;
@@ -38,13 +38,13 @@ public:
 
 	void executeMove(Move move);
 
-	void setEvaluators(std::function<Move (const Board&, const Board&)> white, std::function<Move (const Board&, const Board&)> black);
+	void setEvaluators(std::function<Move (const Board&, const Board&, Random&)> white, std::function<Move (const Board&, const Board&, Random&)> black);
 
 	static bool isCheck(std::vector<Piece>& pcs, Color c);
 	
-	static Move standardEvaluator(const Board& pcs, const Board& killed, Color c);
-	static Move standardEvaluatorBlack(const Board& pcs, const Board& killed);
-	static Move userInput(const Board& pcs, const Board& killed);
+	static Move standardEvaluator(const Board& pcs, const Board& killed, Random& rand, Color c);
+	static Move standardEvaluatorBlack(const Board& pcs, const Board& killed, Random& rand);
+	static Move userInput(const Board& pcs, const Board& killed, Random& rand);
 
 	static void printMove(Move move);
 	static int getScore(const Board& pcs, Color c);
@@ -56,16 +56,11 @@ private:
 	BoardText getBoard();
 	static BoardText getBoard(const Board& pcs);
 
-	std::function<Move (const Board&, const Board&)> whiteEvaluator;
-	std::function<Move (const Board&, const Board&)> blackEvaluator;
+	std::function<Move (const Board&, const Board&, Random&)> whiteEvaluator;
+	std::function<Move (const Board&, const Board&, Random&)> blackEvaluator;
 
 	
 	State state;
-
-
-	// Random 
-	std::random_device rd;
-	std::mt19937 gen;
 };
 
 #endif
