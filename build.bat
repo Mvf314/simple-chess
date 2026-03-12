@@ -1,4 +1,4 @@
-set FLAGS=-Wall -Werror -Wextra -std=c++17
+set FLAGS=-Wall -Werror -Wextra -std=c++17 -O2
 
 :: Compile files separately
 
