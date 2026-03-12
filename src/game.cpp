@@ -34,6 +34,20 @@ Game::Game() {
 	pieces.push_back(std::make_shared<Queen>(Color::WHITE, Position(4, 1)));
 	pieces.push_back(std::make_shared<Queen>(Color::BLACK, Position(4, 8)));
 
+
+	// TESTING CODE
+
+//	pieces.clear();
+//	pieces.push_back(std::make_shared<Rook>(Color::WHITE, Position(1, 1)));
+//	pieces.push_back(std::make_shared<Rook>(Color::WHITE, Position(8, 1)));
+//
+//
+//	pieces.push_back(std::make_shared<Queen>(Color::BLACK, Position(6, 6)));
+//	pieces.push_back(std::make_shared<King>(Color::WHITE, Position(5, 1)));
+//	pieces.push_back(std::make_shared<King>(Color::BLACK, Position(5, 8)));
+
+
+
 	killed = Board();
 
 	state = State::WHITE_TURN;
@@ -219,6 +233,28 @@ void Game::executeMove(Move move) {
 		}
 	}
 
+	bool castle = false;
+	int castleDir = 0;
+	if (King* king = dynamic_cast<King*>(move.first.get())) {
+		if (abs(king->pos.file - move.second.file) == 2) {
+			castle = true;
+			castleDir = move.second.file - king->pos.file;
+		}
+	}
+
+	int rookFile = 0;
+	int rookRank = 0;
+	if (castle) {
+		// If we castled, find corresponding rook.
+		// Hardcoded for normal chess. Later maybe do something more adaptable.
+		if (castleDir < 0) {
+			rookFile = 1;
+		} else {
+			rookFile = 8;
+		}
+		rookRank = move.second.rank;
+	}
+
 	// Find piece to move
 	for (auto piece_ptr : pieces) {
 		Piece* piece = piece_ptr.get();
@@ -233,11 +269,30 @@ void Game::executeMove(Move move) {
 			} else if (Rook* rook = dynamic_cast<Rook*>(piece)) {
 				rook->setMoved();
 			}
+		} 
+		if (castle) {
+			if (piece->pos == Position(rookFile, rookRank)) {
+				if (Rook* rook = dynamic_cast<Rook*>(piece)) {
+					// Should always get here.
+					// Harcoded for normal chess.
+					if (castleDir < 0) {
+						rook->pos = Position(4, rookRank);
+					} else {
+						rook->pos = Position(6, rookRank);
+					}
+				}
+			}
 		}
 	}
 
-	if (remove == -1) {
-		// Did not capture
+	if (castle) {
+		if (castleDir < 0) {
+			std::cout << movedPiece << " castled queenside.\n";
+		} else {
+			std::cout << movedPiece << " castled kingside.\n";
+		}
+	} else if (remove == -1) {
+		// Did not capture, did not castle.
 		std::cout << movedPiece << " moved to " << move.second.toString() << ".\n";
 	} else {
 		// Captured a piece

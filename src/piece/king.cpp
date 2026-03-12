@@ -31,7 +31,7 @@ std::vector<Position> King::validMoves(const std::vector<std::shared_ptr<Piece>>
 				file = 1;
 			}
 
-			// Seach for the rook
+			// Seach thhrough pieces
 			bool foundRook = false;
 			bool queensideRookOccupied = false;
 			for (auto piece_ptr : pieces) {
@@ -49,7 +49,20 @@ std::vector<Position> King::validMoves(const std::vector<std::shared_ptr<Piece>>
 					}
 				} else if (piece->pos == Position(2, pos.rank)) {
 					queensideRookOccupied = true;
+				} else if (piece->pos == pos) {
+					// Found ourselves
+					// We cannot castle through a check.
+					// This is taking one step. If the simulated board with this move is check, illegal.
+					Position intermediateMove = Position((move.file + pos.file) / 2, pos.rank);
+					if (Piece::inCheck(simulateMove(pieces, piece_ptr, intermediateMove), c)) {
+						legalCastleMove = false;
+					}
 				}
+			}
+
+			// We can't castle ourselves out of check.
+			if (Piece::inCheck(pieces, c)) {
+				legalCastleMove = false;
 			}
 
 			// The rook must actually be there.
@@ -61,6 +74,9 @@ std::vector<Position> King::validMoves(const std::vector<std::shared_ptr<Piece>>
 			if (queensideRookOccupied && file == 1) {
 				legalCastleMove = false;
 			}
+
+			
+			
 
 
 
