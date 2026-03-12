@@ -40,7 +40,23 @@ std::vector<Position> Pawn::validMoves(const std::vector<std::shared_ptr<Piece>>
 			if (move.file == pos.file) {
 				// We can move only cardinally
 				validMoves.push_back(move);
+			} else {
+				// Check en Passant
+				// En passant position = Position(pos.rank, move.file)
+				for (auto piece_ptr : pieces) {
+					// If a piece is next to us
+					if ((piece_ptr.get()->pos.rank == pos.rank) && (piece_ptr.get()->pos.file == move.file)) {
+						if (Pawn* pawn = dynamic_cast<Pawn*>(piece_ptr.get())) {
+							/// If it is a pawn
+							if ((pawn->c != c) && pawn->isVulnerable()) {
+								// Can en-passant.
+								validMoves.push_back(move);
+							}
+						}
+					}
+				}
 			}
+
 		}
 
 	}
@@ -70,6 +86,18 @@ std::vector<Position> Pawn::validMoves(const std::vector<std::shared_ptr<Piece>>
 
 	}
 	return moves;
+}
+
+void Pawn::setVulnerable() {
+	vulnerable = true;
+}
+
+void Pawn::setNotVulnerable() {
+	vulnerable = false;
+}
+
+bool Pawn::isVulnerable() {
+	return vulnerable;
 }
 
 std::vector<Position::MoveResult> Pawn::moveset() {

@@ -5,7 +5,7 @@
 
 class Pawn : public Piece {
 public:
-	Pawn(Color col, Position position) : Piece(col, position) {};
+	Pawn(Color col, Position position) : Piece(col, position), vulnerable(false) {};
 
 	char getChar() override;
 
@@ -14,7 +14,12 @@ public:
 
 	int getScore() override;
 	Pawn* clone() override;
+	// Vulnerable to en passant capture
+	void setVulnerable();
+	void setNotVulnerable();
+	bool isVulnerable();
 private:
+	bool vulnerable;
 	std::vector<Position::MoveResult> moveset() override;
 };
 

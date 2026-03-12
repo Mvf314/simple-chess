@@ -34,20 +34,6 @@ Game::Game() {
 	pieces.push_back(std::make_shared<Queen>(Color::WHITE, Position(4, 1)));
 	pieces.push_back(std::make_shared<Queen>(Color::BLACK, Position(4, 8)));
 
-
-	// TESTING CODE
-
-//	pieces.clear();
-//	pieces.push_back(std::make_shared<Rook>(Color::WHITE, Position(1, 1)));
-//	pieces.push_back(std::make_shared<Rook>(Color::WHITE, Position(8, 1)));
-//
-//
-//	pieces.push_back(std::make_shared<Queen>(Color::BLACK, Position(6, 6)));
-//	pieces.push_back(std::make_shared<King>(Color::WHITE, Position(5, 1)));
-//	pieces.push_back(std::make_shared<King>(Color::BLACK, Position(5, 8)));
-
-
-
 	killed = Board();
 
 	state = State::WHITE_TURN;
@@ -222,6 +208,7 @@ void Game::executeMove(Move move) {
 	int remove = -1;
 	char killedPiece = '?'; //TODO bad design?
 	char movedPiece = '?';
+	// If we capture another piece normally
 	for (size_t i = 0; i < pieces.size(); i++) {
 		Piece* piece = pieces[i].get();
 
@@ -233,6 +220,52 @@ void Game::executeMove(Move move) {
 		}
 	}
 
+	for (auto piece_ptr : pieces) {
+		Piece* piece = piece_ptr.get();
+		if (Pawn* pawn = dynamic_cast<Pawn*>(piece)) {
+			// Ensure that pawns are only vulnerable to en-passant for one turn.
+			if (move.first.get()->c != pawn->c) {
+				if (pawn->isVulnerable()) {
+					pawn->setNotVulnerable();
+				}
+			}
+		}
+	}
+
+	// Detect en-passant.
+	bool enPassant = false;
+	if (Pawn* pawn = dynamic_cast<Pawn*>(move.first.get())) {
+		if (pawn->pos.file != move.second.file) {
+			// Capture move. Now figure out e.p.
+			bool pieceOnTarget = false;
+			for (auto piece_ptr : pieces) {
+				Piece* piece = piece_ptr.get();
+				if (piece->pos == move.second) {
+					pieceOnTarget = true;
+				}
+			}
+
+			if (!pieceOnTarget) {
+				// E.P.
+				enPassant = true;
+				Position attacked = Position(move.second.file, pawn->pos.rank);
+				// Remove a piece, same as earlier.
+				for (size_t i = 0; i < pieces.size(); i++) {
+
+					Piece* piece = pieces[i].get();
+					if (piece->pos == attacked) {
+						killed.push_back(std::shared_ptr<Piece>(piece->clone()));
+						killedPiece = piece->getChar();
+						// We can use the same remove variable, as we can never capture a piece normally and en-passant in the same turn.
+						remove = i;
+					}
+				}
+			}
+		}
+	}
+
+
+	// Detect if we castled.
 	bool castle = false;
 	int castleDir = 0;
 	if (King* king = dynamic_cast<King*>(move.first.get())) {
@@ -259,7 +292,7 @@ void Game::executeMove(Move move) {
 	for (auto piece_ptr : pieces) {
 		Piece* piece = piece_ptr.get();
 		if (piece->pos == move.first.get()->pos) {
-			piece->pos = move.second;
+
 			movedPiece = piece->getChar();
 
 			// For kings and rooks, keep track if they moved. 
@@ -268,7 +301,16 @@ void Game::executeMove(Move move) {
 				king->setMoved();
 			} else if (Rook* rook = dynamic_cast<Rook*>(piece)) {
 				rook->setMoved();
+			} else if (Pawn* pawn = dynamic_cast<Pawn*>(piece)) {
+				if (abs(pawn->pos.rank - move.second.rank) == 2) {
+					// Initial move
+					pawn->setVulnerable();
+				}
 			}
+
+
+			// Actuallu move the piece (need to do this after checking pawn's first move)
+			piece->pos = move.second;
 		} 
 		if (castle) {
 			if (piece->pos == Position(rookFile, rookRank)) {
@@ -285,7 +327,9 @@ void Game::executeMove(Move move) {
 		}
 	}
 
-	if (castle) {
+	if (enPassant) {
+		std::cout << movedPiece << " captured " << killedPiece << " en passant at " << move.second.toString() << ".\n";
+	} else if (castle) {
 		if (castleDir < 0) {
 			std::cout << movedPiece << " castled queenside.\n";
 		} else {
