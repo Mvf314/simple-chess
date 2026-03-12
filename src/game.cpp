@@ -49,7 +49,6 @@ void Game::run() {
 
 		Move whiteMove = whiteEvaluator(pieces, killed, random);
 
-		printMove(whiteMove);
 		executeMove(whiteMove);
 
 
@@ -59,7 +58,6 @@ void Game::run() {
 		}
 
 		Move blackMove = blackEvaluator(pieces, killed, random);
-		printMove(blackMove);
 		executeMove(blackMove);
 		
 		updateState();
@@ -208,12 +206,15 @@ void Game::updateState() {
 // TODO check sensible smart pointer use.
 void Game::executeMove(Move move) {
 	int remove = -1;
+	char killedPiece = '?'; //TODO bad design?
+	char movedPiece = '?';
 	for (size_t i = 0; i < pieces.size(); i++) {
 		Piece* piece = pieces[i].get();
 
 		if (piece->pos == move.second) {
 			// We capture a piece.
 			killed.push_back(std::shared_ptr<Piece>(piece->clone()));
+			killedPiece = piece->getChar();
 			remove = i;
 		}
 	}
@@ -223,7 +224,16 @@ void Game::executeMove(Move move) {
 		Piece* piece = piece_ptr.get();
 		if (piece->pos == move.first.get()->pos) {
 			piece->pos = move.second;
+			movedPiece = piece->getChar();
 		}
+	}
+
+	if (remove == -1) {
+		// Did not capture
+		std::cout << movedPiece << " moved to " << move.second.toString() << ".\n";
+	} else {
+		// Captured a piece
+		std::cout << movedPiece << " captured " << killedPiece << " at " << move.second.toString() << ".\n";
 	}
 
 	if (remove != -1) {
@@ -405,10 +415,6 @@ Move Game::userInput(const Board& pcs, const Board& killed, Random& rand) {
 	return std::make_pair(pcs[0], Position(1, 1));
 
 
-}
-
-void Game::printMove(Move move) {
-	std::cout << "Moved " << move.first.get()->getChar() << " to " << move.second.toString() << ".\n";
 }
 
 int Game::getScore(const Board& pcs, Color c) {

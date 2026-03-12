@@ -46,7 +46,6 @@ public:
 	static Move standardEvaluatorBlack(const Board& pcs, const Board& killed, Random& rand);
 	static Move userInput(const Board& pcs, const Board& killed, Random& rand);
 
-	static void printMove(Move move);
 	static int getScore(const Board& pcs, Color c);
 
 private:
