@@ -225,6 +225,14 @@ void Game::executeMove(Move move) {
 		if (piece->pos == move.first.get()->pos) {
 			piece->pos = move.second;
 			movedPiece = piece->getChar();
+
+			// For kings and rooks, keep track if they moved. 
+			// Needed for check rules.
+			if (King* king = dynamic_cast<King*>(piece)) {
+				king->setMoved();
+			} else if (Rook* rook = dynamic_cast<Rook*>(piece)) {
+				rook->setMoved();
+			}
 		}
 	}
 

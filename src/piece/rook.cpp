@@ -16,6 +16,14 @@ Rook* Rook::clone() {
 	return dynamic_cast<Rook*>(new Rook(*this));
 }
 
+void Rook::setMoved() {
+	moved = true;
+}
+
+bool Rook::hasMoved() {
+	return moved;
+}
+
 std::vector<Position::MoveResult> Rook::moveset() {
 
 	std::vector<Position::MoveResult> results;

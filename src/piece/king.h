@@ -5,12 +5,15 @@
 
 class King : public Piece {
 public:
-	King(Color col, Position position) : Piece(col, position) {};
+	King(Color col, Position position) : Piece(col, position), moved(false) {};
 
+	std::vector<Position> validMoves(const std::vector<std::shared_ptr<Piece>>& pieces) override;
 	char getChar() override;
 	int getScore() override;
 	King* clone() override;
+	void setMoved();
 private:
+	bool moved;
 	std::vector<Position::MoveResult> moveset() override;
 };
 

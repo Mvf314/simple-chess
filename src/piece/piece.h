@@ -21,7 +21,8 @@ public:
 	Position pos;
 
 	virtual char getChar() = 0;
-
+	
+	// Redefine this for castling check, and en-passant.
 	virtual std::vector<Position> validMoves(const std::vector<std::shared_ptr<Piece>>& pieces);
 	virtual std::vector<Position> lineOfSight(const std::vector<std::shared_ptr<Piece>>& pieces);
 
