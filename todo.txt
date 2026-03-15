@@ -1,8 +1,17 @@
 Implement Unicode symbols. The thing is, they do not fit into a char. So figure out what data type to use.
 
-en passant capture
-
 Ensure shared_ptr does not get copied needlessly. Related: for (const auto&
 ..).
 
-Somehow, the opponent put himself in chess. So somewehere the checking goes wrong.
+Better announcements for check, and game state control flow (maybe don't start immediately, choose what side to play etc.)
+
+Functionally, still need:
+playing as black
+Pawn promotion
+resignation
+
+write a readme
+
+I will add a UI with FTXUI. this should improve control/game flow. Still want it to run in the terminal.
+
+improve the opponent. In the future, maybe some sort of scripting language to describe actions.
