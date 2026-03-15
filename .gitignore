@@ -1,5 +1,6 @@
 *~
-*.exe
+chess.exe
+chess
 bin/*
 *.xopp
 *.swp

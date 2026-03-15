@@ -103,9 +103,13 @@ void Game::printBoard(const Board& pcs, const Board& killed, const std::vector<P
 	for (size_t rank = board.size() - 1; rank < 8; rank--) {
 		ss << rank + 1 << "\u2551";
 		for (char square : board[rank]) {
-			ss << square << "\u2502";
+			if ((square >= 'a' && square <= 'z') || (square >= 'A' && square <= 'Z') || (square == '.')) {
+				ss << square << "\u2502";
+			} else {
+				ss << " \u2502";
+			}
 		}
-		ss.seekp(-1, ss.cur); // Remove one character
+		ss.seekp(-3, ss.cur); // Remove one character
 		ss << "\u2551";
 		
 		if (killedBlack.size() > 0) {
@@ -134,7 +138,7 @@ void Game::printBoard(const Board& pcs, const Board& killed, const std::vector<P
 		}
 		ss << "\n \u255F\u2500\u253C\u2500\u253C\u2500\u253C\u2500\u253C\u2500\u253C\u2500\u253C\u2500\u253C\u2500\u2562\n";
 	}
-	ss.seekp(-51, ss.cur); // Erase last line, kinda cursed
+	ss.seekp(-52, ss.cur); // Erase last line, kinda cursed
 	ss << "\u255A\u2550\u2567\u2550\u2567\u2550\u2567\u2550\u2567\u2550\u2567\u2550\u2567\u2550\u2567\u2550\u255D\n";
 	
 
