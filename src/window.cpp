@@ -28,7 +28,7 @@ void Window::updateComponents() {
 	const std::string board_row =   "+---+---+---+---+---+---+---+---+";
 	const std::string board_other = "|   |   |   |   |   |   |   |   |";
 
-	boardComponent = ftxui::Renderer([&]{
+	boardComponent = ftxui::Renderer([board_row, board_other]{
 		//std::stringstream ss;
 		//ss << "| " << piece_selected << " | " << move_selected[piece_selected] << " |   |   |   |   |   |   |";
 		return ftxui::vbox({
@@ -52,7 +52,7 @@ void Window::updateComponents() {
 		}) | ftxui::center;
 	});
 
-	titleComponent = ftxui::Renderer([&] {
+	titleComponent = ftxui::Renderer([this] {
 		return ftxui::vbox({
 			ftxui::text("hello there i am text") 	| ftxui::borderRounded | ftxui::size(ftxui::HEIGHT, ftxui::EQUAL, screenHeight - boardHeight),
 			boardComponent->Render()			| ftxui::border | ftxui::size(ftxui::HEIGHT, ftxui::EQUAL, boardHeight),
@@ -64,7 +64,7 @@ void Window::updateComponents() {
 		"Piece 1",
 		"Piece 2",
 	};
-	piecesComponent = ftxui::Menu(&pieces, &pieceSelected) | ftxui::borderLight | ftxui::size(ftxui::WIDTH, ftxui::GREATER_THAN, 16);
+	piecesComponent = ftxui::Menu(pieces, &pieceSelected) | ftxui::borderLight | ftxui::size(ftxui::WIDTH, ftxui::GREATER_THAN, 16);
 
 	std::vector<std::string> moves0 = {
 		"Move 0-0",
@@ -83,9 +83,9 @@ void Window::updateComponents() {
 	};
 
 	movesComponent = ftxui::Container::Tab({
-		ftxui::Menu(&moves0, &moveSelected[0]),
-		ftxui::Menu(&moves1, &moveSelected[1]),
-		ftxui::Menu(&moves2, &moveSelected[2]),
+		ftxui::Menu(moves0, &moveSelected[0]),
+		ftxui::Menu(moves1, &moveSelected[1]),
+		ftxui::Menu(moves2, &moveSelected[2]),
 	}, &pieceSelected) | ftxui::border | ftxui::size(ftxui::WIDTH, ftxui::GREATER_THAN, 16);
 
 	std::vector<std::vector<std::string>> moves = {
@@ -105,8 +105,10 @@ void Window::updateComponents() {
 		"2.\txe5",
 	};
 
-
-	infoComponent = ftxui::Renderer([&] {
+	// We capture the vectors by value:
+	// The vectors go out of scope at the end of this function,
+	// at this moments the references point to unallocated memory.
+	infoComponent = ftxui::Renderer([history_strs, history_alg, this] {
 		ftxui::Elements history_strs_els = ftxui::Elements();
 		ftxui::Elements history_alg_not_els = ftxui::Elements();
 		for (const std::string& str : history_strs) {
@@ -129,19 +131,13 @@ void Window::updateComponents() {
 		movesComponent,
 		infoComponent,
 	});
-
+	
 	content = ftxui::Renderer(layout, [&]{
 		return ftxui::hbox({
 			titleComponent->Render(),
 			piecesComponent->Render(),
 			movesComponent->Render(),
 			infoComponent->Render(),
-		});
-	});
-
-	content = ftxui::Renderer([] {
-		return ftxui::hbox({
-			ftxui::text("Test") | ftxui::border,
 		});
 	});
 }
