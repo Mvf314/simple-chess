@@ -31,6 +31,8 @@ public:
 	void printBoard(const std::vector<Position>& moves);
 	void printBoard();
 
+	static BoardText getBoard(const Board& pcs);
+
 	static void printBoard(const Board& pcs, const Board& killed, const std::vector<Position>& moves);
 	static void printBoard(const Board& pcs, const Board& killed);
 
@@ -48,12 +50,13 @@ public:
 
 	static int getScore(const Board& pcs, Color c);
 
+	Board* getPieces();
+
 private:
 	Board pieces;
 	Board killed;
 
 	BoardText getBoard();
-	static BoardText getBoard(const Board& pcs);
 
 	std::function<Move (const Board&, const Board&, Random&)> whiteEvaluator;
 	std::function<Move (const Board&, const Board&, Random&)> blackEvaluator;

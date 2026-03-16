@@ -11,6 +11,12 @@ public:
 
 	void startApp(ftxui::App app);
 private:
+	// Update pieces, moves and pieceMap. col is the color of the player.
+	void updateMenus(Color col);
+	void updateBoard(int pieceIdx, int moveIdx);
+	
+	ftxui::Component getBoard(Board& b, std::vector<Position> moveList);
+
 	Game* game;
 
 	size_t screenWidth;
@@ -18,6 +24,22 @@ private:
 
 	size_t boardWidth;
 	size_t boardHeight;
+
+	// Board values;
+	int test1, test2;
+
+	// Menu values, so that they can be accessed through reference
+	std::vector<std::string> pieces;
+	std::vector<std::vector<std::string>> moves;
+	
+	// moves[i] is the allowed moves of pieces[i] = Game::pieces[j].
+	// This is the translation map (pieceMap[i] = j);
+	std::vector<size_t> pieceMap;
+
+
+	// This will contain all possible boards. TODO this should be done differently maybe.
+	std::vector<std::vector<ftxui::Component>> boards;
+
 
 	// menu selectors
 	int pieceSelected;

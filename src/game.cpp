@@ -167,6 +167,11 @@ void Game::setEvaluators(std::function<Move (const Board&, const Board&, Random&
 
 BoardText Game::getBoard(const Board& pcs) {
 	BoardText b = BoardText();
+	for (int i = 0; i < 8; i++) {
+		for (int j = 0; j < 8; j++) {
+			b[i][j] = ' ';
+		}
+	}
 
 	for (auto ptr : pcs) {
 		Piece* p = ptr.get();
@@ -539,4 +544,8 @@ int Game::getScore(const Board& pcs, Color c) {
 		}
 	}
 	return score;
+}
+
+Board* Game::getPieces() {
+	return &pieces;
 }
