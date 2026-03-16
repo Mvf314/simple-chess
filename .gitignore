@@ -1,6 +1,7 @@
 *~
 chess.exe
 chess
+chess-debug
 bin/*
 *.xopp
 *.swp

@@ -3,28 +3,43 @@ RM=rm -f
 
 # Compilation flags
 CFLAGS=-Wall -Werror -Wextra -std=c++17 -O2 -fdiagnostics-color=always
+CFLAGS_DEBUG=$(CFLAGS) -fsanitize=address -g
 
 OBJ_DIR=bin
 SRC_DIR=src
+DEBUG_DIR=bin/debug
 OBJ_LIST=piece/piece.o piece/king.o piece/queen.o piece/rook.o piece/bishop.o piece/knight.o piece/pawn.o window.o position.o random.o game.o main.o
 OBJS=$(addprefix $(OBJ_DIR)/,$(OBJ_LIST))
+DEBUG_OBJS=$(addprefix $(DEBUG_DIR)/,$(OBJ_LIST))
+
 
 LIB_PATH=/usr/local/lib
 INCLUDE_PATH=/usr/local/include
 
 # Linker flags
 LFLAGS=-L$(LIB_PATH) -lftxui-component -lftxui-dom -lftxui-screen
+LFLAGS_DEBUG=$(LFLAGS) -fsanitize=address
 
 
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp | bin bin/piece
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp | $(OBJ_DIR) $(OBJ_DIR)/piece
 	$(CC) $(CFLAGS) -c $< -o $@ -I$(INCLUDE_PATH)
 
 main: $(OBJS)
 	$(CC) -o chess $^ $(LFLAGS)
 
-bin bin/piece:
+$(DEBUG_DIR)/%.o: $(SRC_DIR)/%.cpp | $(DEBUG_DIR) $(DEBUG_DIR)/piece
+	$(CC) $(CFLAGS_DEBUG) -c $< -o $@ -I$(INCLUDE_PATH)
+
+debug: $(DEBUG_OBJS)
+	$(CC) -o chess-debug $^ $(LFLAGS_DEBUG)
+
+$(OBJ_DIR) $(OBJ_DIR)/piece:
 	mkdir $@
 
+$(DEBUG_DIR) $(DEBUG_DIR)/piece:
+	mkdir $@
 clean:
-	$(RM) $(OBJS) chess
-	$(RM) -r bin
+	$(RM) $(OBJS) chess chess-debug
+	$(RM) -r $(OBJ_DIR)
+	$(RM) -r $(DEBUG_DIR)
+
