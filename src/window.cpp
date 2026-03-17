@@ -170,12 +170,6 @@ void Window::updateComponents() {
 
 	movesComponent = ftxui::Container::Tab(movesList, &pieceSelected) | ftxui::border | ftxui::size(ftxui::WIDTH, ftxui::GREATER_THAN, 16);
 
-	std::vector<std::vector<std::string>> moves = {
-		moves0,
-		moves1,
-		moves2,
-	};
-
 	std::vector<std::string> history_strs = {
 		"Moved p to d4",
 		"Moved p to e5",
@@ -230,6 +224,13 @@ void Window::updateComponents() {
 				return false;
 			}
 			// Else 
+			// Set the result
+			std::stringstream ss;
+			int moveIdx = moveSelected[pieceSelected];
+			ss << pieces[pieceSelected] << " to ";
+			ss << moves[pieceSelected][moveIdx];
+			result = ss.str();
+			// exit application
 			ftxui::App::Active()->Exit();
 			return true;
 		}	
@@ -238,8 +239,5 @@ void Window::updateComponents() {
 }
 
 void Window::startApp(ftxui::App app) {
-
-
-
 	app.Loop(content);
 }

@@ -9,7 +9,9 @@ public:
 
 	void updateComponents();
 
-	void startApp(ftxui::App app);
+	void startApp(ftxui::App);
+
+	std::string result;
 private:
 	// Update pieces, moves and pieceMap. col is the color of the player.
 	void updateMenus(Color col);

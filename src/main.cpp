@@ -10,13 +10,12 @@ int main() {
 
 	g.setEvaluators(Game::userInput, Game::standardEvaluatorBlack);
 
-	//g.run();
-	//
 	Window win = Window(&g);
 
 	win.updateComponents();
 
 	win.startApp(ftxui::App::Fullscreen());
+	std::cout << "Selected move is " << win.result << "\n";
 
 
 	return 0;
