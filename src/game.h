@@ -52,6 +52,10 @@ public:
 
 	Board* getPieces();
 
+	State getState();
+
+	Move getBlackMove(Random&);
+
 private:
 	Board pieces;
 	Board killed;

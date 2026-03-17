@@ -29,6 +29,7 @@ void Window::updateMenus(Color col) {
 	Board* piecesTemp = game->getPieces();
 	pieces = std::vector<std::string>();
 	moves = std::vector<std::vector<std::string>>();
+	actualMoves = std::vector<std::vector<Move>>(); // track possible moves, to return when done.
 	pieceMap = std::vector<size_t>();
 
 	// For every move, we will create a board.
@@ -53,6 +54,7 @@ void Window::updateMenus(Color col) {
 
 				std::vector<std::string> tempMoveList = std::vector<std::string>();
 				std::vector<ftxui::Component> tempBoardList = std::vector<ftxui::Component>();
+				std::vector<Move> tempMoveVector = std::vector<Move>();
 				tempMoveList.push_back("Back");
 
 				tempBoardList.push_back(getBoard(*piecesTemp, tempMoves));
@@ -60,9 +62,13 @@ void Window::updateMenus(Color col) {
 				for (auto move : tempMoves) {
 					tempMoveList.push_back(move.toString());
 					tempBoardList.push_back(getBoard(*piecesTemp, tempMoves));
+					tempMoveVector.push_back(std::make_pair(piecesTemp->at(j), move));
 				}
 				moves.push_back(tempMoveList);
 				boards.push_back(tempBoardList);
+				// Remember: The "first" move is not in here (back).
+				// So we need to select actualMoves[pieceSel][moveSel[pieceSel] - 1].
+				actualMoves.push_back(tempMoveVector);
 			}
 		}
 	}
@@ -87,7 +93,7 @@ ftxui::Component Window::getBoard(Board& b, std::vector<Position> moveList) {
 		std::stringstream ss;
 		for (int rank = 0; rank < 8; rank++) {
 			ss = std::stringstream();
-			ss << rank;
+			ss << 8 - rank;
 			ss << " | ";
 			for (int file = 0; file < 8; file++) {
 				ss << board[7 - rank][file] << " | ";
@@ -119,13 +125,10 @@ ftxui::Component Window::getBoard(Board& b, std::vector<Position> moveList) {
 
 }
 
-void Window::updateBoard(int pieceIdx, int moveIdx) {
+void Window::updateBoard() {
 	const std::string board_header =	"  A   B   C   D   E   F   G   H  ";
 	const std::string board_row =   	"+---+---+---+---+---+---+---+---+";
 	const std::string board_other = 	"|   |   |   |   |   |   |   |   |";
-
-	test1 = pieceIdx;
-	test2 = moveIdx;
 
 	std::vector<Position> p = std::vector<Position>();
 
@@ -135,7 +138,7 @@ void Window::updateBoard(int pieceIdx, int moveIdx) {
 void Window::updateComponents() {
 
 	updateMenus(Color::WHITE);
-	updateBoard(pieceSelected, moveSelected[pieceSelected]);
+	updateBoard();
 
 	titleComponent = ftxui::Renderer([this] {
 		return ftxui::vbox({
@@ -184,7 +187,7 @@ void Window::updateComponents() {
 	// We capture the vectors by value:
 	// The vectors go out of scope at the end of this function,
 	// at this moments the references point to unallocated memory.
-	infoComponent = ftxui::Renderer([history_strs, history_alg, this] {
+	historyComponent = ftxui::Renderer([history_strs, history_alg, this] {
 		ftxui::Elements history_strs_els = ftxui::Elements();
 		ftxui::Elements history_alg_not_els = ftxui::Elements();
 		for (const std::string& str : history_strs) {
@@ -193,19 +196,28 @@ void Window::updateComponents() {
 		for (const std::string& alg_not : history_alg) {
 			history_alg_not_els.push_back(ftxui::text(alg_not));
 		}
-		return ftxui::hbox({
-			ftxui::vbox(history_strs_els)		| ftxui::size(ftxui::WIDTH, ftxui::GREATER_THAN, 16),
-			ftxui::separator(),
-			ftxui::vbox(history_alg_not_els) 	| ftxui::size(ftxui::WIDTH, ftxui::GREATER_THAN, 8),
-			ftxui::separator()
-		}) | ftxui::border | ftxui::size(ftxui::WIDTH, ftxui::EQUAL, screenWidth - boardWidth - 32);
+		return ftxui::vbox({
+			ftxui::hbox({
+				ftxui::vbox(history_strs_els)		| ftxui::size(ftxui::WIDTH, ftxui::GREATER_THAN, 16),
+				ftxui::separator(),
+				ftxui::vbox(history_alg_not_els) 	| ftxui::size(ftxui::WIDTH, ftxui::GREATER_THAN, 8),
+				ftxui::separator()
+			}) | ftxui::border | ftxui::size(ftxui::WIDTH, ftxui::EQUAL, 48),
+		});
 	});
+
+	controlsComponent = ftxui::Button("quit", [&] {
+		shouldQuit = true;
+		ftxui::App::Active()->Exit();
+		return true;
+	}) | ftxui::border | ftxui::size(ftxui::WIDTH, ftxui::EQUAL, screenWidth - boardWidth - 80);
 
 	layout = ftxui::Container::Horizontal({
 		titleComponent,
 		piecesComponent,
 		movesComponent,
-		infoComponent,
+		historyComponent,
+		controlsComponent,
 	});
 	
 	content = ftxui::Renderer(layout, [&]{
@@ -213,12 +225,14 @@ void Window::updateComponents() {
 			titleComponent->Render(),
 			piecesComponent->Render(),
 			movesComponent->Render(),
-			infoComponent->Render(),
+			historyComponent->Render(),
+			controlsComponent->Render(),
 		});
 	});
 
 	content |= ftxui::CatchEvent([&](ftxui::Event event) {
-		if (event == ftxui::Event::Return) {
+		// m for move
+		if (event == ftxui::Event::m) {
 			// If we have not selected a move
 			if (moveSelected[pieceSelected] == 0) {
 				return false;
@@ -227,9 +241,7 @@ void Window::updateComponents() {
 			// Set the result
 			std::stringstream ss;
 			int moveIdx = moveSelected[pieceSelected];
-			ss << pieces[pieceSelected] << " to ";
-			ss << moves[pieceSelected][moveIdx];
-			result = ss.str();
+			result = actualMoves[pieceSelected][moveIdx - 1];
 			// exit application
 			ftxui::App::Active()->Exit();
 			return true;

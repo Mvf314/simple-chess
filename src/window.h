@@ -11,11 +11,13 @@ public:
 
 	void startApp(ftxui::App);
 
-	std::string result;
+	Move result = std::make_pair(nullptr, Position(1,1));
+
+	bool shouldQuit = false;
 private:
 	// Update pieces, moves and pieceMap. col is the color of the player.
 	void updateMenus(Color col);
-	void updateBoard(int pieceIdx, int moveIdx);
+	void updateBoard();
 	
 	ftxui::Component getBoard(Board& b, std::vector<Position> moveList);
 
@@ -33,11 +35,11 @@ private:
 	// Menu values, so that they can be accessed through reference
 	std::vector<std::string> pieces;
 	std::vector<std::vector<std::string>> moves;
+	std::vector<std::vector<Move>> actualMoves;
 	
 	// moves[i] is the allowed moves of pieces[i] = Game::pieces[j].
 	// This is the translation map (pieceMap[i] = j);
 	std::vector<size_t> pieceMap;
-
 
 	// This will contain all possible boards. TODO this should be done differently maybe.
 	std::vector<std::vector<ftxui::Component>> boards;
@@ -52,7 +54,8 @@ private:
 	ftxui::Component titleComponent;
 	ftxui::Component piecesComponent;
 	ftxui::Component movesComponent;
-	ftxui::Component infoComponent;
+	ftxui::Component historyComponent;
+	ftxui::Component controlsComponent;
 
 	ftxui::Component layout;
 	ftxui::Component content;

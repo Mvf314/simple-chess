@@ -533,6 +533,11 @@ Move Game::userInput(const Board& pcs, const Board& killed, Random& rand) {
 
 }
 
+Move Game::getBlackMove(Random& rand) {
+	return blackEvaluator(pieces, killed, rand);
+}
+
+
 int Game::getScore(const Board& pcs, Color c) {
 	int score = 0;
 	for (auto piece_ptr : pcs) {
@@ -548,4 +553,8 @@ int Game::getScore(const Board& pcs, Color c) {
 
 Board* Game::getPieces() {
 	return &pieces;
+}
+
+State Game::getState() {
+	return state;
 }

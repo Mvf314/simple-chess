@@ -12,10 +12,30 @@ int main() {
 
 	Window win = Window(&g);
 
-	win.updateComponents();
+	Random random = Random();
 
-	win.startApp(ftxui::App::Fullscreen());
-	std::cout << "Selected move is " << win.result << "\n";
+
+	
+	State state = g.getState();
+	while (!win.shouldQuit && state != State::WHITE_WIN && state != State::BLACK_WIN && state != State::DRAW) {
+		win.updateComponents();
+		win.startApp(ftxui::App::Fullscreen()); 
+
+
+		Move r = win.result;
+		g.executeMove(r);
+
+		g.updateState();
+		state = g.getState();
+		if (state == State::WHITE_WIN || state == State::BLACK_WIN || state == State::DRAW) {
+			std::cout << "Game end\n";
+			break;
+		}
+		Move blackMove = g.getBlackMove(random);
+		g.executeMove(blackMove);
+		g.updateState();
+		state = g.getState();
+	}
 
 
 	return 0;
