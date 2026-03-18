@@ -15,3 +15,7 @@ write a readme
 I will add a UI with FTXUI. this should improve control/game flow. Still want it to run in the terminal.
 
 improve the opponent. In the future, maybe some sort of scripting language to describe actions.
+
+Separate logical part (Game) and UI (Window) better. Something like:
+Game::sendMove(Move m); (executeMove, this is maybe already okay.)
+map out connections between Window and Game class and look to minimize the amount. Also definitely limit access to game state by public member.
