@@ -16,6 +16,7 @@ public:
 	Position(const int f, const int r);
 
 	std::string toString();
+	std::string toString(bool lower);
 
 	Position move(const int up, const int right, const bool dir);
 	// Returns true if position was truncated.

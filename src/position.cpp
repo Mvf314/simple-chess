@@ -49,10 +49,17 @@ Position::Position(const int f, const int r) {
 }
 
 std::string Position::toString() {
-	char fileChar = file + 'A' - 1;
+	return toString(false);
+}
+
+std::string Position::toString(bool lower) {
+	char fileCharUpper = file + 'A' - 1;
+	char fileCharLower = file + 'a' - 1;
 	char rankChar = rank + '0';
-	std::string s {fileChar, rankChar};
-	return s;
+	if (lower) {
+		return std::string({fileCharLower, rankChar});
+	}
+	return std::string({fileCharUpper, rankChar});
 }
 
 Position Position::move(const int up, const int right, const bool dir) {

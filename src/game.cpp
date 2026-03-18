@@ -555,15 +555,31 @@ Move Game::userInput(const Board& pcs, const Board& killed, Random& rand) {
 
 std::string Game::getAlgebraicNotation(char piece, Position from, Position to, MoveType type) {
 	std::stringstream ss = std::stringstream();
-	ss << piece << " " << from.toString() << "->" << to.toString();
-	switch (type) {
-		case MoveType::CASTLE_KING:
-			return "0-0";
-		case MoveType::CASTLE_QUEEN:
-			return "0-0-0";
-		default:
-			return ss.str();
+	if (type == MoveType::CASTLE_KING) {
+		return "0-0";
 	}
+	 else if (type == MoveType::CASTLE_QUEEN) {
+		return "0-0-0";
+	}
+	// TODO: disambiguate move.
+	// If not castling, first character is the piece we move (except for pawn)
+	// bad, hardcoded
+	if (piece != 'p' && piece != 'P') {
+		ss << piece;
+	} else {
+		// pawn makes a move. Prepend file, only when capturing.
+		if (type == MoveType::CAPTURE || type == MoveType::CAPTURE_EP) {
+			ss << from.toString(true)[0];
+		}
+	}
+	if (type == MoveType::CAPTURE || type == MoveType::CAPTURE_EP) {
+		ss << 'x';
+	}
+	ss << to.toString(true);
+	if (type == MoveType::CAPTURE_EP) {
+		ss << " e.p.";
+	}
+	return ss.str();
 }
 
 Move Game::getBlackMove(Random& rand) {
