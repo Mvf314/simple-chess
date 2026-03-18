@@ -2,7 +2,8 @@ CC=g++
 RM=rm -f
 
 # Compilation flags
-CFLAGS=-Wall -Werror -Wextra -std=c++17 -O2 -fdiagnostics-color=always
+CWARNINGS=-Wall -Werror -Wextra -Wpedantic -Wfatal-errors
+CFLAGS=$(CWARNINGS) -std=c++17 -O2 -fdiagnostics-color=always
 CFLAGS_DEBUG=$(CFLAGS) -fsanitize=address -g
 
 OBJ_DIR=bin
