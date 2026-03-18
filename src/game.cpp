@@ -36,6 +36,10 @@ Game::Game() {
 
 	killed = Board();
 
+	history = std::vector<Move>();
+	historyText = std::vector<std::string>();
+	historyAlg = std::vector<std::string>();
+
 	state = State::WHITE_TURN;
 }
 
@@ -50,6 +54,7 @@ void Game::run() {
 		Move whiteMove = whiteEvaluator(pieces, killed, random);
 
 		executeMove(whiteMove);
+		history.push_back(whiteMove);
 
 
 		updateState();
@@ -59,6 +64,7 @@ void Game::run() {
 
 		Move blackMove = blackEvaluator(pieces, killed, random);
 		executeMove(blackMove);
+		history.push_back(blackMove);
 		
 		updateState();
 	}
@@ -216,7 +222,7 @@ void Game::updateState() {
 void Game::executeMove(Move move) {
 	int remove = -1;
 	char killedPiece = '?'; //TODO bad design?
-	char movedPiece = '?';
+	char movedPiece = move.first->getChar();
 	// If we capture another piece normally
 	for (size_t i = 0; i < pieces.size(); i++) {
 		Piece* piece = pieces[i].get();
@@ -302,8 +308,6 @@ void Game::executeMove(Move move) {
 		Piece* piece = piece_ptr.get();
 		if (piece->pos == move.first.get()->pos) {
 
-			movedPiece = piece->getChar();
-
 			// For kings and rooks, keep track if they moved. 
 			// Needed for check rules.
 			if (King* king = dynamic_cast<King*>(piece)) {
@@ -336,20 +340,27 @@ void Game::executeMove(Move move) {
 		}
 	}
 
+	std::stringstream ss = std::stringstream();
+
 	if (enPassant) {
-		std::cout << movedPiece << " captured " << killedPiece << " en passant at " << move.second.toString() << ".\n";
+		ss << movedPiece << " captured " << killedPiece << " en passant at " << move.second.toString() << ".";
+		historyText.push_back(ss.str());
 	} else if (castle) {
 		if (castleDir < 0) {
-			std::cout << movedPiece << " castled queenside.\n";
+			ss << movedPiece << " castled queenside.";
+			historyText.push_back(ss.str());
 		} else {
-			std::cout << movedPiece << " castled kingside.\n";
+			ss << movedPiece << " castled kingside.";
+			historyText.push_back(ss.str());
 		}
 	} else if (remove == -1) {
 		// Did not capture, did not castle.
-		std::cout << movedPiece << " moved to " << move.second.toString() << ".\n";
+		ss << movedPiece << " moved to " << move.second.toString() << ".";
+		historyText.push_back(ss.str());
 	} else {
 		// Captured a piece
-		std::cout << movedPiece << " captured " << killedPiece << " at " << move.second.toString() << ".\n";
+		ss << movedPiece << " captured " << killedPiece << " at " << move.second.toString() << ".";
+		historyText.push_back(ss.str());
 	}
 
 	if (remove != -1) {
@@ -557,4 +568,8 @@ Board* Game::getPieces() {
 
 State Game::getState() {
 	return state;
+}
+
+const std::vector<std::string>& Game::getHistoryStr() {
+	return historyText;
 }

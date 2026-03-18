@@ -34,10 +34,10 @@ debug: $(DEBUG_OBJS)
 	$(CC) -o chess-debug $^ $(LFLAGS_DEBUG)
 
 $(OBJ_DIR) $(OBJ_DIR)/piece:
-	mkdir $@
+	mkdir -p $@
 
 $(DEBUG_DIR) $(DEBUG_DIR)/piece:
-	mkdir $@
+	mkdir -p $@
 clean:
 	$(RM) $(OBJS) chess chess-debug
 	$(RM) -r $(OBJ_DIR)

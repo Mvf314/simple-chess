@@ -150,22 +150,6 @@ void Window::updateComponents() {
 
 	piecesComponent = ftxui::Menu(&pieces, &pieceSelected) | ftxui::borderLight | ftxui::size(ftxui::WIDTH, ftxui::GREATER_THAN, 16);
 
-	std::vector<std::string> moves0 = {
-		"Move 0-0",
-	};
-	std::vector<std::string> moves1 = {
-		"Move 1-0",
-		"Move 1-1",
-		"Move 1-2",
-		"Move 1-3",
-		"Move 1-5",
-	};
-	std::vector<std::string> moves2 = {
-		"Move 2-0",
-		"Move 2-1",
-		"Move 2-2",
-	};
-
 	ftxui::Components movesList = ftxui::Components();
 	for (size_t i = 0; i < pieces.size(); i++) {
 		movesList.push_back(ftxui::Menu(&moves[i], &moveSelected[i]));
@@ -173,11 +157,8 @@ void Window::updateComponents() {
 
 	movesComponent = ftxui::Container::Tab(movesList, &pieceSelected) | ftxui::border | ftxui::size(ftxui::WIDTH, ftxui::GREATER_THAN, 16);
 
-	std::vector<std::string> history_strs = {
-		"Moved p to d4",
-		"Moved p to e5",
-		"p captured p at e5",
-	};
+	std::vector<std::string> history_strs = game->getHistoryStr();
+
 	std::vector<std::string> history_alg = {
 		"1.\td4",
 		"  \te5",

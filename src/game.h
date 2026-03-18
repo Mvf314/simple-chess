@@ -55,6 +55,9 @@ public:
 	State getState();
 
 	Move getBlackMove(Random&);
+	const std::vector<std::string>& getHistoryStr();
+
+	
 
 private:
 	Board pieces;
@@ -67,6 +70,9 @@ private:
 
 	
 	State state;
+	std::vector<Move> history;
+	std::vector<std::string> historyText;
+	std::vector<std::string> historyAlg;
 };
 
 #endif
