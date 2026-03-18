@@ -19,3 +19,5 @@ improve the opponent. In the future, maybe some sort of scripting language to de
 Separate logical part (Game) and UI (Window) better. Something like:
 Game::sendMove(Move m); (executeMove, this is maybe already okay.)
 map out connections between Window and Game class and look to minimize the amount. Also definitely limit access to game state by public member.
+
+Add proper scrolling to the history bar.

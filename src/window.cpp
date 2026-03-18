@@ -159,11 +159,7 @@ void Window::updateComponents() {
 
 	std::vector<std::string> history_strs = game->getHistoryStr();
 
-	std::vector<std::string> history_alg = {
-		"1.\td4",
-		"  \te5",
-		"2.\txe5",
-	};
+	std::vector<std::string> history_alg = game->getHistoryAlg();
 
 	// We capture the vectors by value:
 	// The vectors go out of scope at the end of this function,
@@ -179,10 +175,9 @@ void Window::updateComponents() {
 		}
 		return ftxui::vbox({
 			ftxui::hbox({
-				ftxui::vbox(history_strs_els)		| ftxui::size(ftxui::WIDTH, ftxui::GREATER_THAN, 16),
+				ftxui::vbox(history_strs_els)		| ftxui::size(ftxui::WIDTH, ftxui::EQUAL, 24),
 				ftxui::separator(),
-				ftxui::vbox(history_alg_not_els) 	| ftxui::size(ftxui::WIDTH, ftxui::GREATER_THAN, 8),
-				ftxui::separator()
+				ftxui::vbox(history_alg_not_els) 	| ftxui::size(ftxui::WIDTH, ftxui::EQUAL, 24),
 			}) | ftxui::border | ftxui::size(ftxui::WIDTH, ftxui::EQUAL, 48),
 		});
 	});

@@ -22,6 +22,16 @@ enum class State {
 	DRAW
 };
 
+// Maybe we want to combine this into a Move struct. now we figure out what type the move is after the fact.
+enum class MoveType {
+	REGULAR,
+	CAPTURE,
+	CAPTURE_EP,
+	CASTLE_KING,
+	CASTLE_QUEEN,
+	// add more in future.
+};
+
 class Game {
 public:
 	Game();
@@ -56,8 +66,10 @@ public:
 
 	Move getBlackMove(Random&);
 	const std::vector<std::string>& getHistoryStr();
+	const std::vector<std::string>& getHistoryAlg();
 
-	
+	// rethink signature
+	static std::string getAlgebraicNotation(char piece, Position from, Position to, MoveType type);
 
 private:
 	Board pieces;

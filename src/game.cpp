@@ -223,6 +223,8 @@ void Game::executeMove(Move move) {
 	int remove = -1;
 	char killedPiece = '?'; //TODO bad design?
 	char movedPiece = move.first->getChar();
+	MoveType type = MoveType::REGULAR;
+	Position from = Position(1,1); //uninit
 	// If we capture another piece normally
 	for (size_t i = 0; i < pieces.size(); i++) {
 		Piece* piece = pieces[i].get();
@@ -307,7 +309,7 @@ void Game::executeMove(Move move) {
 	for (auto piece_ptr : pieces) {
 		Piece* piece = piece_ptr.get();
 		if (piece->pos == move.first.get()->pos) {
-
+			from = piece->pos;
 			// For kings and rooks, keep track if they moved. 
 			// Needed for check rules.
 			if (King* king = dynamic_cast<King*>(piece)) {
@@ -343,25 +345,32 @@ void Game::executeMove(Move move) {
 	std::stringstream ss = std::stringstream();
 
 	if (enPassant) {
+		type = MoveType::CAPTURE_EP;
 		ss << movedPiece << " captured " << killedPiece << " en passant at " << move.second.toString() << ".";
 		historyText.push_back(ss.str());
 	} else if (castle) {
 		if (castleDir < 0) {
+			type = MoveType::CASTLE_QUEEN;
 			ss << movedPiece << " castled queenside.";
 			historyText.push_back(ss.str());
 		} else {
+			type = MoveType::CASTLE_KING;
 			ss << movedPiece << " castled kingside.";
 			historyText.push_back(ss.str());
 		}
 	} else if (remove == -1) {
+		type = MoveType::REGULAR;
 		// Did not capture, did not castle.
 		ss << movedPiece << " moved to " << move.second.toString() << ".";
 		historyText.push_back(ss.str());
 	} else {
+		type = MoveType::CAPTURE;
 		// Captured a piece
 		ss << movedPiece << " captured " << killedPiece << " at " << move.second.toString() << ".";
 		historyText.push_back(ss.str());
 	}
+
+	historyAlg.push_back(getAlgebraicNotation(movedPiece, from, move.second, type));
 
 	if (remove != -1) {
 		// Should happen always.
@@ -544,6 +553,19 @@ Move Game::userInput(const Board& pcs, const Board& killed, Random& rand) {
 
 }
 
+std::string Game::getAlgebraicNotation(char piece, Position from, Position to, MoveType type) {
+	std::stringstream ss = std::stringstream();
+	ss << piece << " " << from.toString() << "->" << to.toString();
+	switch (type) {
+		case MoveType::CASTLE_KING:
+			return "0-0";
+		case MoveType::CASTLE_QUEEN:
+			return "0-0-0";
+		default:
+			return ss.str();
+	}
+}
+
 Move Game::getBlackMove(Random& rand) {
 	return blackEvaluator(pieces, killed, rand);
 }
@@ -572,4 +594,8 @@ State Game::getState() {
 
 const std::vector<std::string>& Game::getHistoryStr() {
 	return historyText;
+}
+
+const std::vector<std::string>& Game::getHistoryAlg() {
+	return historyAlg;
 }
