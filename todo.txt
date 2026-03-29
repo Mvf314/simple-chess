@@ -1,7 +1,7 @@
 Implement Unicode symbols. The thing is, they do not fit into a char. So figure out what data type to use.
 
-Ensure shared_ptr does not get copied needlessly. Related: for (const auto&
-..).
+Ensure shared_ptr does not get copied needlessly. Related: for (const auto& x : list)
+Actually, change to a unique_ptr-based system and pass around raw pointers or references if we want non-owning use of members.
 
 Better announcements for check, and game state control flow (maybe don't start immediately, choose what side to play etc.)
 
