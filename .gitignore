@@ -5,3 +5,4 @@ chess-debug
 bin/*
 *.xopp
 *.swp
+tags
